@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Form View-->
+        <record id="view_regarding_regarding_form" model="ir.ui.view">
+            <field name="name">regarding.regarding.form</field>
+            <field name="model">regarding.regarding</field>
+            <field name="arch" type="xml">
+                <form string="Regarding">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name='name'/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+         <!--Tree Views-->
+        <record id="view_regarding_regarding_tree" model="ir.ui.view">
+            <field name="name">regarding.regarding.tree</field>
+            <field name="model">regarding.regarding</field>
+            <field name="arch" type="xml">
+                <tree string="Regarding">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+         <!-- Action -->
+        <record id="action_regarding_regarding" model="ir.actions.act_window">
+            <field name="name">Regarding</field>
+            <field name="res_model">regarding.regarding</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!--Menus-->
+        <menuitem id="regarding_regarding_menu" name="Regarding" sequence="2" action="action_regarding_regarding"
+                  parent="crm.menu_crm_config_lead"/>
+
+    </data>
+</odoo>

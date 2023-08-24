@@ -1,0 +1,5 @@
+id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
+
+access_regarding_regarding,access_regarding_regarding,model_regarding_regarding,,1,1,1,1
+access_status_status,access_status_status,model_status_status,,1,1,1,1
+access_category_category,access_category_category,model_category_category,,1,1,1,1

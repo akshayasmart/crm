@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Form View-->
+        <record id="view_category_category_form" model="ir.ui.view">
+            <field name="name">category.category.form</field>
+            <field name="model">category.category</field>
+            <field name="arch" type="xml">
+                <form string="Category">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!--Tree Views-->
+        <record id="view_category_category_tree" model="ir.ui.view">
+            <field name="name">category.category.tree</field>
+            <field name="model">category.category</field>
+            <field name="arch" type="xml">
+                <tree string="Category">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="action_category_category" model="ir.actions.act_window">
+            <field name="name">Category</field>
+            <field name="res_model">category.category</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!--Menus-->
+        <menuitem id="crm_category" name="Category" sequence="2" action="action_category_category" parent="crm.menu_crm_config_lead"/>
+    </data>
+</odoo>

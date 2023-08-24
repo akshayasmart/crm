@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Form View-->
+        <record id="view_status_status_form" model="ir.ui.view">
+            <field name="name">status.status.form</field>
+            <field name="model">status.status</field>
+            <field name="arch" type="xml">
+                <form string="Status">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!--Tree Views-->
+        <record id="view_status_status_tree" model="ir.ui.view">
+            <field name="name">status.status.tree</field>
+            <field name="model">status.status</field>
+            <field name="arch" type="xml">
+                <tree string="Status">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="action_status_status" model="ir.actions.act_window">
+            <field name="name">Status</field>
+            <field name="res_model">status.status</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!--Menus-->
+        <menuitem id="crm_status_bar" name="Status" sequence="2" action="action_status_status" parent="crm.menu_crm_config_lead"/>
+    </data>
+</odoo>

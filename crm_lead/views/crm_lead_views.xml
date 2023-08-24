@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record id="view_crm_lead_form" model="ir.ui.view">
+        <field name="name">crm.lead.form.inherit</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <header>
+                <field name="state" widget="statusbar" options="{'clickable': '1'}"
+                       attrs="{'invisible': [('type', '=', 'opportunity')]}"/>
+            </header>
+
+            <xpath expr="//field[@name='partner_name']" position="before">
+                <field name="partner_id" attrs="{'invisible': [('type', '=', 'opportunity')]}"/>
+            </xpath>
+            <xpath expr="//div[@id='probability']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='email_cc']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='contact_name']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='probability']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//label[@for='probability']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_name']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='website']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='lang_id']" position="replace">
+                <field name="quantity"/>
+            </xpath>
+            <xpath expr="//field[@name='quantity']" position="after">
+                <field name="ref_number" attrs="{'invisible': [('type', '=', 'opportunity')]}"/>
+            </xpath>
+            <xpath expr="//field[@name='title']" position="replace">
+                <field name="child_id"/>
+            </xpath>
+            <xpath expr="//page[@name='extra']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='team_id']" position="before">
+                <field name="regarding_id" attrs="{'invisible': [('type', '=', 'opportunity')]}"/>
+                <field name="status_id" attrs="{'invisible': [('type', '=', 'opportunity')]}"/>
+                <field name="category_id" attrs="{'invisible': [('type', '=', 'opportunity')]}"/>
+                <field name="last_action" attrs="{'invisible': [('type', '=', 'opportunity')]}"/>
+<!--                <field name="ref_number" attrs="{'invisible': [('type', '=', 'opportunity')]}"/>-->
+
+            </xpath>
+            <label for="name" position="replace">
+                <label string="Item Name" for="name"/>
+            </label>
+        </field>
+    </record>
+    <record id="crm_lead_view" model="ir.ui.view">
+        <field name="name">crm.lead.search</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.view_crm_case_leads_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='lost']" position="after">
+                <filter string="Work Closed" name="state" domain="[('state','=', 'work_closed')]"/>
+                <filter string="Work Open" name="state" domain="[('state','=', 'work_open')]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_crm_lead_tree" model="ir.ui.view">
+        <field name="name">crm.lead.tree.inherit</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_leads"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="replace">
+                <field name="name" string="Item Name" readonly="1"/>
+            </xpath>
+
+              <xpath expr="//field[@name='name']" position="after">
+                <field name="contact_name"/>
+                <field name="quantity"/>
+                <field name="last_action"/>
+                <field name="regarding_id"/>
+                <field name="category_id"/>
+            </xpath>
+
+        </field>
+    </record>
+
+
+
+    <record id="crm_lead_view" model="ir.ui.view">
+        <field name="name">crm.lead.search</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.view_crm_case_leads_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='lost']" position="after">
+                <filter string="Work Closed" name="state" domain="[('state','=', 'work_closed')]"/>
+                <filter string="Work Open" name="state" domain="[('state','=', 'work_open')]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="crm.crm_menu_leads" model="ir.ui.menu">
+        <field name="name">Item</field>
+    </record>
+    <record id="crm.crm_lead_all_leads" model="ir.actions.act_window">
+        <field name="name">Item</field>
+    </record>
+
+</odoo>
