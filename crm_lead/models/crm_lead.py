@@ -5,6 +5,7 @@ from odoo.exceptions import ValidationError
 from collections import defaultdict
 
 
+
 class CrmLead(models.Model):
     _inherit = 'crm.lead'
 
@@ -83,19 +84,19 @@ class CrmLead(models.Model):
 
 
 
-    # def action_share_whatsapp(self):
-    #     invoice_data = self.read()[0]
-    #     if not self.child_id.phone:
-    #         raise ValidationError(_('Missing Phone Number in Customer Record'))
-    #     pdf_content = self.env [ 'ir.actions.report' ].sudo( )._render_pdf( [ invoice_data [ 'id' ] ] ,
-    #                                                                         'account.report_invoice' ).decode( 'utf-8' )
-    #     msg = 'Hi %s ' % self.child_id.name
-    #     whatsapp_api_url = 'https://api.whatsapp.com/send?phone=%s&text=%s' % (self.child_id.phone,msg)
-    #     return {
-    #         'type' : 'ir.actions.act_url',
-    #         'target' : 'new',
-    #         'url' : whatsapp_api_url
-    #     }
+    def action_share_whatsapp(self):
+        invoice_data = self.read()[0]
+        if not self.child_id.phone:
+            raise ValidationError(_('Missing Phone Number in Customer Record'))
+        pdf_content = self.env [ 'ir.actions.report' ].sudo( )._render_pdf( [ invoice_data [ 'id' ] ] ,
+                                                                            'account.report_invoice' ).decode( 'utf-8' )
+        msg = 'Hi %s ' % self.child_id.name
+        whatsapp_api_url = 'https://api.whatsapp.com/send?phone=%s&text=%s' % (self.child_id.phone,msg)
+        return {
+            'type' : 'ir.actions.act_url',
+            'target' : 'new',
+            'url' : whatsapp_api_url
+        }
 
     def generate_reports(self) :
         company = self.env.user.company_id
@@ -118,38 +119,41 @@ class CrmLead(models.Model):
             unique_emails = {lead.email_from for lead in leads}
 
             if len( unique_emails ) == 1 :
-                formatted_result = "<table border='1' style='border-collapse: collapse; width: 70%; text-align: center';>"
-                formatted_result += "<tr><th>Item Name</th><th>Reference Number</th><th>Quantity</th><th>Status</th></tr>"
+                formatted_result = "<table border='1' style='border-collapse: collapse; width: 50%; text-align: center';>"
+                formatted_result += (
+                    "<tr><th><font color='#220a99'>Item Name</font></th><th><font color='#220a99'>Reference Number</font></th>"
+                    "<th><font color='#220a99'>Quantity</font></th><th><font color='#220a99'>Status</font></th></tr>")
+
                 for lead in leads :
                     formatted_result += "<tr>"
-                    formatted_result += "<td>{}</td>".format( lead.name )
-                    formatted_result += "<td>{}</td>".format( lead.ref_number )
-                    formatted_result += "<td>{}</td>".format( lead.quantity )
-                    formatted_result += "<td>{}</td>".format( lead.status_id.name )
+                    formatted_result += "<td align='left' style='padding-left: 15px;'>{}</td>".format( lead.name )
+                    formatted_result += "<td align='left' style='padding-left: 15px;'>{}</td>".format( lead.ref_number )
+                    formatted_result += "<td align='right' style='padding-right: 15px;'>{}</td>".format( lead.quantity )
+                    formatted_result += "<td align='left' style='padding-left: 15px;'>{}</td>".format(
+                        lead.status_id.name )
                     formatted_result += "</tr>"
-                formatted_result += "</table><br><br><br><br>"
+                formatted_result += "</table><br>"
 
-                company_info = """<p><strong>Thanks and Regards</strong></p>                
-                <p>{}<br>{}</p>                
-                <p>{}</p>""".format( company.name , company.street , company.phone )
+                company_info = """<p>Thanks and Regards</p>                
+                  <p><font color="red">{}</font><br>{}<br>{}</p>""".format( company.name , company.street ,
+                                                                            company.phone )
 
                 recipient_name = lead.child_id.name
 
                 email_content = """               
-                <html>                
-                <body>                
-                <h2>CRM Lead Report</h2>                
-                <p>Dear {},</p>                
-                <p>Please find below a list of products</p>                
-                {}                
-                {}                
-                </body>                
-                </html>            
-                """.format( recipient_name , formatted_result , company_info )
+                  <html>                
+                  <body>                               
+                  <p>Dear {},</p>                
+                  <p>Greetings, Please find below list for your kind reference</p>                
+                  {}                
+                  {}                
+                  </body>                
+                  </html>            
+                  """.format( recipient_name , formatted_result , company_info )
 
                 # Send the email to this assigned contact
                 mail_values = {
-                    'subject' : 'CRM Lead Report' ,
+                    'subject' : 'Item Details' ,
                     'body_html' : email_content ,
                     'email_to' : contact_email ,
                 }
@@ -191,6 +195,7 @@ class CrmLead(models.Model):
     #             'target': 'new',
     #             'url': final_whatsapp_urls,
     #         }
+
 
 
 class Item(models.Model):

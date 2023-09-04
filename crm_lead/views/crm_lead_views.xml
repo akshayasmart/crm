@@ -101,7 +101,7 @@
             <xpath expr="//tree" position="inside">
                 <header>
                     <button name="generate_reports" string="Send by Email" class="btn-primary" type="object"/>
-<!--                    <button name="action_share_whatsapp" string="Whatsapp"  class="btn-primary" icon="fa-whatsapp" type="object"/>-->
+<!--                    <button name="generate_report" string="Whatsapp"  class="btn-primary" icon="fa-whatsapp" type="object"/>-->
 
                 </header>
             </xpath>
