@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="email_template_crm_lead" model="mail.template">
+        <field name="name">CRM Lead Follow-up Email</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="subject">Follow-up on Your Inquiry</field>
+        <field name="email_from">${object.user_id.email}</field>
+        <field name="email_to">${object.child_id.email}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="body_html">
+            <![CDATA[
+            <p> Hello ${object.child_id.name},</p>
+
+            <table style="border: 1px solid black; border-collapse: collapse;">
+
+<!--            <tr style="border: 1px solid black; border-collapse: collapse;">-->
+            <th style="border: 1px solid black; border-collapse: collapse;">ITEM</th>
+            <th style="border: 1px solid black; border-collapse: collapse;">QUANTITY</th>
+            <th style="border: 1px solid black; border-collapse: collapse;">Ref.Id</th>
+            <th style="border: 1px solid black; border-collapse: collapse;">Status</th>
+
+            <t t-foreach="leads" t-as="lead">
+                <tr>
+                    <td><t t-set="lead_name" t-value="lead.name"/><t t-esc="lead_name"/></td>
+                    <td><t t-set="lead_contact_name" t-value="lead.quantity"/><t t-esc="lead_quantity"/></td>
+                    <td><t t-set="lead_email_from" t-value="lead.status_id"/><t t-esc="lead_status_id"/></td>
+                    <td><t t-set="lead_email_from" t-value="lead.status_id"/><t t-esc="lead_email"/></td>
+                    <td><t t-set="lead_email_from" t-value="lead.status_id"/><t t-esc="lead_ref_num"/></td>
+                </tr>
+            </t>
+
+
+]]>
+        </field>
+    </record>
+
+</odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

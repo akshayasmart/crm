@@ -1,0 +1,30 @@
+<!--<odoo>-->
+<!--    <data>-->
+<!--        <record id="paperformat_nextlogic_purchase_agreement" model="report.paperformat">-->
+<!--            <field name="name">A4 NPurchase Agreement</field>-->
+<!--            <field name="default" eval="True"/>-->
+<!--            <field name="format">A4</field>-->
+<!--            <field name="page_height">0</field>-->
+<!--            <field name="page_width">0</field>-->
+<!--            <field name="orientation">Portrait</field>-->
+<!--            <field name="margin_top">5</field>-->
+<!--            <field name="margin_bottom">5</field>-->
+<!--            <field name="margin_left">7</field>-->
+<!--            <field name="margin_right">7</field>-->
+<!--            <field name="header_line" eval="False"/>-->
+<!--            <field name="header_spacing">25</field>-->
+<!--            <field name="dpi">100</field>-->
+
+<!--        </record>-->
+<!--        <record id="action_medicine_report" model="ir.actions.report">-->
+<!--            <field name="name">crm lead</field>-->
+<!--            <field name="model">crm.lead</field>-->
+<!--            <field name="report_type">qweb-pdf</field>-->
+<!--            <field name="report_name">crm_lead.report_medicine_template</field>-->
+<!--            <field name="report_file">crm_lead.report_medicine_template</field>-->
+<!--            <field name="binding_model_id" ref="model_crm_lead"/>-->
+<!--            <field name="binding_type">report</field>-->
+<!--            <field name="paperformat_id" ref="crm_lead.paperformat_nextlogic_purchase_agreement"/>-->
+<!--        </record>-->
+<!--    </data>-->
+<!--</odoo>-->

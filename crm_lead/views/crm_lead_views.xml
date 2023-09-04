@@ -53,9 +53,29 @@
                 <field name="status_id" attrs="{'invisible': [('type', '=', 'opportunity')]}"/>
                 <field name="category_id" attrs="{'invisible': [('type', '=', 'opportunity')]}"/>
                 <field name="last_action" attrs="{'invisible': [('type', '=', 'opportunity')]}"/>
-<!--                <field name="ref_number" attrs="{'invisible': [('type', '=', 'opportunity')]}"/>-->
+                <!--                <field name="ref_number" attrs="{'invisible': [('type', '=', 'opportunity')]}"/>-->
 
             </xpath>
+            <notebook position="inside">
+                <page string='Item' name="products">
+                    <field name="item_ids" mode="tree">
+                        <tree editable="bottom">
+                            <field name="name"></field>
+                            <field name="quantity"></field>
+                            <field name="ref_number"></field>
+                            <field name="status_id"></field>
+                        </tree>
+                        <from>
+                            <group>
+                                <field name="name"></field>
+                                <field name="quantity"></field>
+                                <field name="ref_number"></field>
+                                <field name="status_id"></field>
+                            </group>
+                        </from>
+                    </field>
+                </page>
+            </notebook>
             <label for="name" position="replace">
                 <label string="Item Name" for="name"/>
             </label>
@@ -78,11 +98,18 @@
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.crm_case_tree_view_leads"/>
         <field name="arch" type="xml">
+            <xpath expr="//tree" position="inside">
+                <header>
+                    <button name="generate_reports" string="Send by Email" class="btn-primary" type="object"/>
+<!--                    <button name="action_share_whatsapp" string="Whatsapp"  class="btn-primary" icon="fa-whatsapp" type="object"/>-->
+
+                </header>
+            </xpath>
             <xpath expr="//field[@name='name']" position="replace">
                 <field name="name" string="Item Name" readonly="1"/>
             </xpath>
 
-              <xpath expr="//field[@name='name']" position="after">
+            <xpath expr="//field[@name='name']" position="after">
                 <field name="contact_name"/>
                 <field name="quantity"/>
                 <field name="last_action"/>
@@ -92,7 +119,6 @@
 
         </field>
     </record>
-
 
 
     <record id="crm_lead_view" model="ir.ui.view">
@@ -113,5 +139,7 @@
     <record id="crm.crm_lead_all_leads" model="ir.actions.act_window">
         <field name="name">Item</field>
     </record>
+
+
 
 </odoo>

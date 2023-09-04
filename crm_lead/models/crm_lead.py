@@ -1,4 +1,8 @@
-from odoo import fields, models,api
+import urllib.parse
+from odoo import fields, _,models,api
+from datetime import datetime
+from odoo.exceptions import ValidationError
+from collections import defaultdict
 
 
 class CrmLead(models.Model):
@@ -29,9 +33,9 @@ class CrmLead(models.Model):
         compute='_compute_lang_id', readonly=True, store=True)
     status_id = fields.Many2one("status.status", string="Status")
     category_id = fields.Many2one("category.category", string="Category")
-    last_action = fields.Datetime(string='Last Action')
+    last_action = fields.Datetime(string='Last Action',default=fields.Datetime.now)
     quantity = fields.Integer(string='Quantity')
-    child_id = fields.Many2one('res.partner',string='Child Tags', domain="[('parent_id','=', partner_id)]" )
+    child_id = fields.Many2one('res.partner',string='Child Tags', domain="['&',('parent_id','=', partner_id),('hide_in_contact', '=', False)]")
     email_from = fields.Char(
         'Email', tracking=40, index=True,
         compute='_compute_email_from', inverse='_inverse_email_from', readonly=False, store=True)
@@ -41,6 +45,8 @@ class CrmLead(models.Model):
         compute='_compute_phone', inverse='_inverse_phone', readonly=False, store=True)
     mobile = fields.Char('Mobile', compute='_compute_mobile', readonly=False, store=True)
     ref_number = fields.Char(string='Reference number')
+    item_ids = fields.One2many('item.item','lead_id', string='Item')
+
 
 
     @api.depends('child_id.email')
@@ -68,3 +74,136 @@ class CrmLead(models.Model):
         for lead in self:
             if not lead.mobile or lead.child_id.mobile:
                 lead.mobile = lead.child_id.mobile
+
+
+    def action_send_mail(self):
+        template = self.env.ref('crm_lead.email_template_crm_lead')
+        for rec in self:
+            template.send_mail(rec.id , force_send=True)
+
+
+
+    # def action_share_whatsapp(self):
+    #     invoice_data = self.read()[0]
+    #     if not self.child_id.phone:
+    #         raise ValidationError(_('Missing Phone Number in Customer Record'))
+    #     pdf_content = self.env [ 'ir.actions.report' ].sudo( )._render_pdf( [ invoice_data [ 'id' ] ] ,
+    #                                                                         'account.report_invoice' ).decode( 'utf-8' )
+    #     msg = 'Hi %s ' % self.child_id.name
+    #     whatsapp_api_url = 'https://api.whatsapp.com/send?phone=%s&text=%s' % (self.child_id.phone,msg)
+    #     return {
+    #         'type' : 'ir.actions.act_url',
+    #         'target' : 'new',
+    #         'url' : whatsapp_api_url
+    #     }
+
+    def generate_reports(self) :
+        company = self.env.user.company_id
+        selected_leads = self.env [ 'crm.lead' ].browse( self.env.context.get( 'active_ids' , [ ] ) )
+
+        if not selected_leads :
+            raise ValidationError( _( 'No leads selected' ) )
+
+        # Group the selected leads by assigned contact email
+        assigned_contacts = {}  # Dictionary to store data for each contact's leads
+        for lead in selected_leads :
+            contact_email = lead.child_id.email
+            if contact_email :
+                if contact_email not in assigned_contacts :
+                    assigned_contacts [ contact_email ] = [ ]
+                assigned_contacts [ contact_email ].append( lead )
+
+        # Process each assigned contact and send an email or raise an error
+        for contact_email , leads in assigned_contacts.items( ) :
+            unique_emails = {lead.email_from for lead in leads}
+
+            if len( unique_emails ) == 1 :
+                formatted_result = "<table border='1' style='border-collapse: collapse; width: 70%; text-align: center';>"
+                formatted_result += "<tr><th>Item Name</th><th>Reference Number</th><th>Quantity</th><th>Status</th></tr>"
+                for lead in leads :
+                    formatted_result += "<tr>"
+                    formatted_result += "<td>{}</td>".format( lead.name )
+                    formatted_result += "<td>{}</td>".format( lead.ref_number )
+                    formatted_result += "<td>{}</td>".format( lead.quantity )
+                    formatted_result += "<td>{}</td>".format( lead.status_id.name )
+                    formatted_result += "</tr>"
+                formatted_result += "</table><br><br><br><br>"
+
+                company_info = """<p><strong>Thanks and Regards</strong></p>                
+                <p>{}<br>{}</p>                
+                <p>{}</p>""".format( company.name , company.street , company.phone )
+
+                recipient_name = lead.child_id.name
+
+                email_content = """               
+                <html>                
+                <body>                
+                <h2>CRM Lead Report</h2>                
+                <p>Dear {},</p>                
+                <p>Please find below a list of products</p>                
+                {}                
+                {}                
+                </body>                
+                </html>            
+                """.format( recipient_name , formatted_result , company_info )
+
+                # Send the email to this assigned contact
+                mail_values = {
+                    'subject' : 'CRM Lead Report' ,
+                    'body_html' : email_content ,
+                    'email_to' : contact_email ,
+                }
+                self.env [ 'mail.mail' ].create( mail_values ).send( )
+            else :
+                print( f"Error: Leads for contact {contact_email} have different email addresses." )
+
+    # def action_share_whatsapp(self):
+    #     selected_leads = self.env['crm.lead'].browse(self.env.context.get('active_ids', []))
+    #
+    #     if not selected_leads:
+    #         raise ValidationError(_('No leads selected'))
+    #
+    #     base_whatsapp_url = 'https://api.whatsapp.com/send?text='
+    #     phone_number_messages = defaultdict(list)
+    #
+    #     for lead in selected_leads:
+    #         if not lead.child_id.phone:
+    #             raise ValidationError(_('Missing Phone Number for lead %s') % lead.name)
+    #
+    #         msg = 'Hi, here is the CRM Lead Report:\n\n'
+    #         msg += "Lead: {}\n".format(lead.name)
+    #         msg += "Reference Number: {}\n".format(lead.ref_number)
+    #         msg += "Email: {}\n".format(lead.email_from)
+    #         msg += "Phone: {}\n".format(lead.phone)
+    #         msg += "Quantity: {}\n".format(lead.quantity)
+    #         msg += "Status: {}\n".format(lead.status_id.name)
+    #         msg += "\n"
+    #
+    #         encoded_msg = urllib.parse.quote(msg)
+    #         whatsapp_api_url = base_whatsapp_url + encoded_msg
+    #         phone_number_messages[lead.child_id.phone].append(whatsapp_api_url)
+    #
+    #     for phone_number, messages in phone_number_messages.items():
+    #         final_whatsapp_urls = ','.join(messages)
+    #
+    #         return {
+    #             'type': 'ir.actions.act_url',
+    #             'target': 'new',
+    #             'url': final_whatsapp_urls,
+    #         }
+
+
+class Item(models.Model):
+    _name = 'item.item'
+
+    lead_id = fields.Many2one('crm.lead', string='Item Name')
+    name = fields.Char(string='Item Name')
+    quantity = fields.Integer(string='Quantity')
+    ref_number = fields.Char(string='Reference number')
+    status_id = fields.Many2one("status.status", string="Status")
+
+
+
+
+
+
