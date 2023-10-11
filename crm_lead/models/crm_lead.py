@@ -3,7 +3,16 @@ from odoo import fields, _,models,api
 from datetime import datetime
 from odoo.exceptions import ValidationError
 from collections import defaultdict
+import re
 
+
+def normalize_phone_number(phone) :
+    # Remove non-digit characters from the phone number
+    phone = re.sub( r'\D' , '' , phone )
+    # Add your country code if it's missing (e.g., +1 for the United States)
+    if not phone.startswith( '+' ) :
+        phone = '+91' + phone
+    return phone
 
 
 class CrmLead(models.Model):
@@ -195,6 +204,64 @@ class CrmLead(models.Model):
     #             'target': 'new',
     #             'url': final_whatsapp_urls,
     #         }
+
+
+    def generate_reports(self) :
+        company = self.env.user.company_id
+        selected_leads = self.env [ 'crm.lead' ].browse( self.env.context.get( 'active_ids' , [ ] ) )
+
+        if not selected_leads :
+            raise ValidationError( _( 'No leads selected' ) )
+
+        base_whatsapp_url = 'https://wa.me/'  # Use the WhatsApp API endpoint
+
+        # Group the selected leads by assigned contact phone number
+        assigned_contacts = {}  # Dictionary to store data for each contact's leads
+        for lead in selected_leads :
+            contact_phone = lead.child_id.phone
+            if contact_phone :
+                if contact_phone not in assigned_contacts :
+                    assigned_contacts [ contact_phone ] = [ ]
+                assigned_contacts [ contact_phone ].append( lead )
+
+        whatsapp_values = [ ]  # List to store WhatsApp message URLs
+
+        # Process each assigned contact and generate a WhatsApp URL
+        for contact_phone , leads in assigned_contacts.items( ) :
+            formatted_result = "Greetings! Please find below the information you requested:\n\n"
+            formatted_result += "Item Name | Reference Number | Quantity | Status\n"
+
+            for lead in leads :
+                formatted_result += "{} | {} | {} | {}\n".format(
+                    lead.name , lead.ref_number , lead.quantity , lead.status_id.name )
+
+            company_info = "\nThanks and Regards\n{}\n{}\n{}".format(
+                company.name , company.street , company.phone )
+
+            recipient_name = leads [ 0 ].child_id.name  # Use the name of the first lead in the group
+
+            whatsapp_message = """
+             Dear {},
+
+             {}
+
+             {}
+
+             Best regards,
+             [Your Name]
+             """.format( recipient_name , formatted_result , company_info )
+
+            # Generate the WhatsApp URL with the message and append it to the list
+            whatsapp_api_url = base_whatsapp_url + contact_phone + "?text=" + urllib.parse.quote( whatsapp_message )
+            whatsapp_values.append( whatsapp_api_url )
+
+        return {
+            'type' : 'ir.actions.act_url' ,
+            'target' : 'new' ,
+            'url' : '\n'.join( whatsapp_values ) ,  # Join all WhatsApp URLs with line breaks
+        }
+
+
 
 
 
